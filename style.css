@@ -1,8 +1,6 @@
-/* ---------------------
-   CLEAN BLUE HEADER BAR
----------------------- */
+
 header {
-  background-color: #0d6efd; /* bright blue */
+  background-color: #0d6efd; 
   color: white;
   padding: 15px 60px;
   display: flex;
@@ -37,3 +35,4 @@ nav a {
 nav a:hover {
   opacity: 0.8;
 }
+
