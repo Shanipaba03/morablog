@@ -44,7 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         min-height: 100vh;
     }
 
-    /* ===== HEADER ===== */
     header {
         background: #0b63d1;
         color: white;
@@ -121,7 +120,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       background: rgba(255,255,255,0.35);
     }
 
-    /* ===== MAIN CONTENT ===== */
     main {
         flex: 1;
         display: flex;
@@ -271,3 +269,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </body>
 </html>
+
