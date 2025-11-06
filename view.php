@@ -5,7 +5,6 @@ require_once 'db.php';
 $pdo = getPDO();
 $id = $_GET['id'] ?? 0;
 
-// Fetch post and author
 $stmt = $pdo->prepare("SELECT bp.*, u.username FROM blog_posts bp JOIN users u ON bp.user_id = u.id WHERE bp.id=?");
 $stmt->execute([$id]);
 $post = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -14,7 +13,6 @@ if (!$post) {
     die("Post not found.");
 }
 
-// Check edit permission
 $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
 ?>
 <!doctype html>
@@ -33,7 +31,6 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
         min-height: 100vh;
     }
 
-    /* ===== HEADER ===== */
     header {
         background: #0b63d1;
         color: white;
@@ -110,7 +107,6 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
       background: rgba(255,255,255,0.35);
     }
 
-    /* ===== MAIN CONTENT ===== */
     main {
         flex: 1;
         display: flex;
@@ -241,3 +237,4 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
 
 </body>
 </html>
+
