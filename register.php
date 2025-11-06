@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-            // insert user
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             if ($stmt->execute([$username, $email, $hashed_password])) {
                 $success = "Registration successful! Redirecting to login page...";
@@ -66,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     .register-box h1 {
-        color: #0d6efd; /* MoraBlog blue */
+        color: #0d6efd; 
         margin-bottom: 25px;
         font-size: 28px;
     }
@@ -194,3 +193,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
    </script>
 </body>
 </html>
+
