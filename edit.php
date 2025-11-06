@@ -10,7 +10,6 @@ if(!isLoggedIn()) {
 $pdo = getPDO();
 $id = $_GET['id'] ?? 0;
 
-// Fetch post
 $stmt = $pdo->prepare("SELECT * FROM blog_posts WHERE id = ?");
 $stmt->execute([$id]);
 $post = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -54,7 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         min-height: 100vh;
     }
 
-    /* ===== HEADER ===== */
     header {
         background: #0b63d1;
         color: white;
@@ -126,8 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         background: linear-gradient(90deg, #d32f2f, #b71c1c);
         transform: translateY(-2px);
     }
-
-    /* ===== MAIN CONTENT ===== */
+  
     main {
         flex: 1;
         display: flex;
@@ -277,3 +274,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </body>
 </html>
+
