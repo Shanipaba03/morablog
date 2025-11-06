@@ -4,10 +4,8 @@ require_once 'db.php';
 
 $pdo = getPDO();
 
-// Handle search input
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// SQL query with optional search condition
 if ($search !== '') {
     $stmt = $pdo->prepare("SELECT bp.id, bp.title, bp.content, bp.created_at, u.username 
                            FROM blog_posts bp 
@@ -23,7 +21,6 @@ if ($search !== '') {
 }
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Color patterns for cards
 $colors = [
     "linear-gradient(135deg, #4e54c8, #8f94fb)",
     "linear-gradient(135deg, #0bc0b1ff, #4bb272ff)",
@@ -360,4 +357,5 @@ $colors = [
 </footer>
 
 </body>
+
 </html>
