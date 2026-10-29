@@ -1,5 +1,9 @@
 <?php
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'config.php';
 require_once 'db.php';
 
@@ -18,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
      if ($user) {
         if (password_verify($password, $user['password'])) {
 
-        $_SESSION['user_id'] = $user['id'];    
+        $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
 
         header("Location: index.php");
@@ -162,4 +166,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </body>
 </html>
-

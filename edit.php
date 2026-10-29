@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'config.php';
 require_once 'db.php';
 
@@ -124,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         background: linear-gradient(90deg, #d32f2f, #b71c1c);
         transform: translateY(-2px);
     }
-  
+
     main {
         flex: 1;
         display: flex;
@@ -235,7 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <nav>
     <?php if (isLoggedIn()): ?>
       <span class="user-greet">👋 Hi, <?= htmlspecialchars($_SESSION['username']) ?></span>
-      <a href="create.php" class="btn-newpost">✏️ New Post</a>
+      <a href="new_post.php" class="btn-newpost">✏️ New Post</a>
       <a href="logout.php" class="btn-logout">🚪 Logout</a>
     <?php else: ?>
       <a href="login.php" class="basic-link">Login</a>
@@ -274,4 +278,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </body>
 </html>
-

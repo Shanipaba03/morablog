@@ -1,26 +1,50 @@
+
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'config.php';
 require_once 'db.php';
 
 $pdo = getPDO();
-$id = $_GET['id'] ?? 0;
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-$stmt = $pdo->prepare("SELECT bp.*, u.username FROM blog_posts bp JOIN users u ON bp.user_id = u.id WHERE bp.id=?");
+if (!$id || $id < 1) {
+    http_response_code(404);
+    exit("Post not found.");
+}
+
+$stmt = $pdo->prepare(
+    "SELECT bp.*, u.username
+     FROM blog_posts bp
+     JOIN users u ON bp.user_id = u.id
+     WHERE bp.id = ?"
+);
 $stmt->execute([$id]);
 $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$post) {
-    die("Post not found.");
+    http_response_code(404);
+    exit("Post not found.");
 }
 
-$canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
+$canEdit = isLoggedIn()
+    && (int) $_SESSION['user_id'] === (int) $post['user_id'];
 ?>
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title><?= htmlspecialchars($post['title']) ?> - <?= htmlspecialchars(APP_NAME) ?></title>
+
 <style>
+    * {
+        box-sizing: border-box;
+    }
+
     body {
         font-family: "Poppins", "Segoe UI", sans-serif;
         background: #f3f5fa;
@@ -38,6 +62,8 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
     }
 
@@ -52,10 +78,16 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
         text-decoration: none;
     }
 
+    header nav {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
     header nav a {
         color: white;
         text-decoration: none;
-        margin-left: 15px;
         font-weight: 500;
     }
 
@@ -63,48 +95,38 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
         color: #ffeb3b;
     }
 
-    .btn-newpost {
-      background: linear-gradient(90deg, #007bff, #0056d2);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: background 0.3s, transform 0.2s;
-  }
-  .btn-newpost:hover {
-      background: linear-gradient(90deg, #0056d2, #003c8f);
-      transform: translateY(-2px);
-  }
-
-   .btn-logout {
-      background: linear-gradient(90deg, #f85f5ff0, #da4b4bff);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 25px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.3s;
-  }
-
-  .btn-logout:hover {
-      background: linear-gradient(90deg, #d32f2f, #b71c1c);
-      transform: translateY(-2px);
-  }
-
     .user-greet {
-       background: rgba(255,255,255,0.2);
-       padding: 8px 14px;
-       border-radius: 20px;
-       font-weight: 500;
-       color: #fff;
-       letter-spacing: 0.3px;
-       margin-right: 10px;
-       transition: background 0.3s;
+        background: rgba(255,255,255,0.2);
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-weight: 500;
+        color: #fff;
     }
 
-    .user-greet:hover {
-      background: rgba(255,255,255,0.35);
+    .btn-newpost,
+    .btn-logout {
+        color: #fff;
+        padding: 9px 15px;
+        border-radius: 22px;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.3s;
+    }
+
+    .btn-newpost {
+        background: #0056d2;
+    }
+
+    .btn-newpost:hover {
+        background: #003c8f;
+    }
+
+    .btn-logout {
+        background: #d32f2f;
+    }
+
+    .btn-logout:hover {
+        background: #b71c1c;
     }
 
     main {
@@ -123,6 +145,7 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
         padding: 40px;
         box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
         border-top: 6px solid #0b63d1;
+        overflow-wrap: anywhere;
     }
 
     .post-box h2 {
@@ -151,7 +174,10 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
 
     .btn-group {
         display: flex;
-        gap: 15px;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
     }
 
     .btn {
@@ -166,43 +192,103 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
         text-align: center;
     }
 
-    .btn-blue { background: #0b63d1; }
-    .btn-blue:hover { background: #094ea6; }
+    .btn-blue {
+        background: #0b63d1;
+    }
 
-    .btn-red { background: #e53935; }
-    .btn-red:hover { background: #b71c1c; }
+    .btn-blue:hover {
+        background: #094ea6;
+    }
+
+    .btn-red {
+        background: #e53935;
+    }
+
+    .btn-red:hover {
+        background: #b71c1c;
+    }
+
+    .delete-form {
+        display: inline;
+        margin: 0;
+    }
+
+    button.btn-red {
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
 
     .btn-back {
         background: #607d8b;
         text-decoration: none;
         color: white;
-        padding: 8px 14px;
+        padding: 9px 14px;
         border-radius: 6px;
         font-size: 14px;
-        margin-top: 15px;
         display: inline-block;
         transition: background 0.3s;
     }
 
-    .btn-back:hover { background: #455a64; }
+    .btn-back:hover {
+        background: #455a64;
+    }
 
     footer {
-        background: #3d3d3eff;
+        background: #3d3d3e;
         color: #fff;
         text-align: center;
-        padding: 18px 0;
+        padding: 18px 10px;
         font-size: 14px;
+        margin-top: auto;
+    }
+
+    @media (max-width: 600px) {
+        header {
+            padding: 16px;
+        }
+
+        header nav {
+            gap: 8px;
+        }
+
+        .user-greet {
+            width: 100%;
+        }
+
+        main {
+            padding: 30px 14px;
+        }
+
+        .post-box {
+            padding: 24px 18px;
+        }
+
+        .post-box h2 {
+            font-size: 25px;
+        }
+
+        .content {
+            font-size: 16px;
+        }
     }
 </style>
 </head>
+
 <body>
 
 <header>
-    <h1><a href="index.php"><?= htmlspecialchars(APP_NAME) ?></a></h1>
+    <h1>
+        <a href="index.php"><?= htmlspecialchars(APP_NAME) ?></a>
+    </h1>
+
     <nav>
         <?php if (isLoggedIn()): ?>
-            <span class="user-greet">👋 Hi, <?= htmlspecialchars($_SESSION['username']) ?></span>
-            <a href="create.php" class="btn-newpost">✏️ New Post</a>
+            <span class="user-greet">
+                👋 Hi, <?= htmlspecialchars($_SESSION['username']) ?>
+            </span>
+
+            <a href="new_post.php" class="btn-newpost">✏️ New Post</a>
             <a href="logout.php" class="btn-logout">🚪 Logout</a>
         <?php else: ?>
             <a href="login.php">Login</a>
@@ -212,29 +298,45 @@ $canEdit = isLoggedIn() && $_SESSION['user_id'] == $post['user_id'];
 </header>
 
 <main>
-    <div class="post-box">
+    <article class="post-box">
         <h2><?= htmlspecialchars($post['title']) ?></h2>
+
         <div class="meta">
-            by <?= htmlspecialchars($post['username']) ?> • <?= htmlspecialchars($post['created_at']) ?>
+            By <?= htmlspecialchars($post['username']) ?>
+            &bull;
+            <?= htmlspecialchars($post['created_at']) ?>
         </div>
+
         <div class="content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
 
         <?php if ($canEdit): ?>
-        <div class="btn-group">
-            <a href="edit.php?id=<?= $post['id'] ?>" class="btn btn-blue">Edit</a>
-            <a href="delete.php?id=<?= $post['id'] ?>" class="btn btn-red" 
-               onclick="return confirm('Are you sure you want to delete this post?');">Delete</a>
-        </div>
+            <div class="btn-group">
+                <a href="edit.php?id=<?= (int) $post['id'] ?>"
+                   class="btn btn-blue">✏️ Edit Post</a>
+
+                <form method="post"
+                      action="delete.php"
+                      class="delete-form"
+                      onsubmit="return confirm('Are you sure you want to delete this post? This action cannot be undone.');">
+
+                    <input type="hidden"
+                           name="id"
+                           value="<?= (int) $post['id'] ?>">
+
+                    <button type="submit" class="btn btn-red">
+                        🗑️ Delete Post
+                    </button>
+                </form>
+            </div>
         <?php endif; ?>
 
         <a href="index.php" class="btn-back">← Back to Home</a>
-    </div>
+    </article>
 </main>
 
 <footer>
-  © <?= date('Y') ?> <?= htmlspecialchars(APP_NAME) ?>. All rights reserved.
+    © <?= date('Y') ?> <?= htmlspecialchars(APP_NAME) ?>. All rights reserved.
 </footer>
 
 </body>
 </html>
-
